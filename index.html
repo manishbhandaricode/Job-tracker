@@ -102,6 +102,7 @@
                 </div>
                 
                 <button class="reset-btn" id="reset-btn">Reset Filters</button>
+                <button class="settings-btn" id="settings-btn" style="margin-top: 0.5rem; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: #93c5fd; padding: 0.75rem; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; width: 100%;">⚙️ Edit Preferences</button>
             </div>
 
             <!-- Simplify Integration Card -->
@@ -128,6 +129,33 @@
             </div>
         </section>
     </main>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ Automated Finder Preferences</h2>
+                <button class="close-modal-btn" id="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">These settings control how the AI finds and matches remote jobs for you. Saving will automatically update your GitHub repository.</p>
+                
+                <div class="filter-group">
+                    <label for="pref-keywords">Target Keywords (comma separated)</label>
+                    <input type="text" id="pref-keywords" placeholder="e.g. analyst, product, intern...">
+                </div>
+
+                <div class="filter-group" style="flex: 1;">
+                    <label for="pref-profile">Your Profile/Resume Summary</label>
+                    <textarea id="pref-profile" rows="10" placeholder="Paste your resume details here for the AI..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span id="save-status" class="save-status"></span>
+                <button class="apply-btn" id="save-prefs-btn" style="border: none; cursor: pointer; background: var(--primary); color: white;">Save to GitHub</button>
+            </div>
+        </div>
+    </div>
 
     <footer class="app-footer">
         <p>&copy; 2026 Manish Bhandari. All rights reserved. Job finder automated via Python and Git.</p>

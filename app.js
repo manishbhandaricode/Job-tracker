@@ -214,3 +214,90 @@ document.addEventListener('DOMContentLoaded', () => {
         renderJobs();
     });
 });
+
+// --- Settings Modal Logic ---
+document.addEventListener('DOMContentLoaded', () => {
+    const settingsBtn = document.getElementById('settings-btn');
+    const settingsModal = document.getElementById('settings-modal');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const savePrefsBtn = document.getElementById('save-prefs-btn');
+    const prefKeywordsInput = document.getElementById('pref-keywords');
+    const prefProfileInput = document.getElementById('pref-profile');
+    const saveStatus = document.getElementById('save-status');
+
+    let currentPreferences = { keywords: [], profile: '' };
+
+    if (!settingsBtn) return; // safety check
+
+    // Open modal and fetch current preferences
+    settingsBtn.addEventListener('click', async () => {
+        settingsModal.classList.add('active');
+        saveStatus.textContent = 'Loading current preferences...';
+        saveStatus.style.color = 'var(--text-muted)';
+        
+        try {
+            const response = await fetch('preferences.json');
+            if (response.ok) {
+                currentPreferences = await response.json();
+                prefKeywordsInput.value = currentPreferences.keywords.join(', ');
+                prefProfileInput.value = currentPreferences.profile;
+                saveStatus.textContent = '';
+            } else {
+                saveStatus.textContent = 'Could not load preferences.json';
+            }
+        } catch (error) {
+            console.error(error);
+            saveStatus.textContent = 'Error loading preferences locally.';
+        }
+    });
+
+    // Close modal
+    closeModalBtn.addEventListener('click', () => {
+        settingsModal.classList.remove('active');
+    });
+
+    // Save preferences to Vercel API -> GitHub
+    savePrefsBtn.addEventListener('click', async () => {
+        const newKeywords = prefKeywordsInput.value.split(',').map(k => k.trim()).filter(k => k);
+        const newProfile = prefProfileInput.value.trim();
+
+        if (!newKeywords.length || !newProfile) {
+            saveStatus.textContent = 'Fields cannot be empty.';
+            saveStatus.style.color = '#f87171'; // red
+            return;
+        }
+
+        savePrefsBtn.textContent = 'Saving...';
+        savePrefsBtn.disabled = true;
+        saveStatus.textContent = 'Pushing to GitHub...';
+        saveStatus.style.color = 'var(--text-muted)';
+
+        try {
+            const res = await fetch('/api/update-preferences', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    profile: newProfile,
+                    keywords: newKeywords
+                })
+            });
+
+            const data = await res.json();
+            
+            if (res.ok) {
+                saveStatus.textContent = '✅ Saved! AI is now using new rules.';
+                saveStatus.style.color = '#4ade80'; // green
+                setTimeout(() => { settingsModal.classList.remove('active'); }, 2000);
+            } else {
+                saveStatus.textContent = `❌ Error: ${data.error}`;
+                saveStatus.style.color = '#f87171';
+            }
+        } catch (error) {
+            saveStatus.textContent = `❌ Network Error: ${error.message}`;
+            saveStatus.style.color = '#f87171';
+        } finally {
+            savePrefsBtn.textContent = 'Save to GitHub';
+            savePrefsBtn.disabled = false;
+        }
+    });
+});

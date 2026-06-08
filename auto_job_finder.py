@@ -13,20 +13,17 @@ try:
 except ImportError:
     HAS_GENAI = False
 
-# Manish's Profile details for Gemini matching
-MANISH_PROFILE = """
-Candidate: Manish Bhandari
-Education: Bachelor of Commerce (Graduating July 2026), SGPA: 8.10.
-Experience: Business Analysis & Research Intern at Perccent (WealthTech startup).
-- Researched WealthTech market leaders (Dezerv, Kuvera, Groww, etc.).
-- Wrote functional product specifications (acceptance criteria for dashboards and calculators).
-- Managed social media marketing content (Canva, Framer, LinkedIn, Instagram).
-Projects:
-1. Working Capital Management in FMCG Companies.
-2. M&A Strategic Analysis: CRED x Kuvera.
-3. Product Specification: Core Wealth Tools (20+ acceptance criteria, UX flows, UPI/netbanking integrations).
-Skills: Corporate Accounting, Financial Systems, Product Specifications, Data Visualization, Framer, Canva, Notion, Excel, PowerPoint, Creative Writing, Client Outreach, Telesales.
-"""
+# Load preferences
+try:
+    prefs_path = os.path.join(os.path.dirname(__file__), "preferences.json")
+    with open(prefs_path, "r", encoding="utf-8") as f:
+        prefs = json.load(f)
+        MANISH_PROFILE = prefs.get("profile", "")
+        TARGET_KEYWORDS = prefs.get("keywords", [])
+except Exception as e:
+    print(f"Failed to load preferences.json: {e}")
+    MANISH_PROFILE = ""
+    TARGET_KEYWORDS = []
 
 def pre_filter_job(title, description, location):
     """
@@ -56,10 +53,7 @@ def pre_filter_job(title, description, location):
         return False
 
     # 4. Include check - must match one of our target keywords in title
-    target_keywords = ["analyst", "product", "intern", "associate", "marketing", "writer", "sales", 
-                       "business development", "operations", "finance", "support", "graduate", "entry", 
-                       "junior", "trainee", "fresher", "assistant", "doubt solver", "tutor", "telesales", "copywriter"]
-    if not any(word in title_lower for word in target_keywords):
+    if not any(word.lower() in title_lower for word in TARGET_KEYWORDS):
         return False
 
     return True
