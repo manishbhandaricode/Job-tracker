@@ -40,26 +40,6 @@
         "tip": "Highlight your WealthTech competitor analysis and data-driven approach."
     },
     {
-        "title": "Product Analyst Intern",
-        "company": "Simpl (India)",
-        "category": "Product Management",
-        "employment": "Part-time",
-        "chance": "Extremely High",
-        "url": "https://getsimpl.com/careers",
-        "fits": "BNPL/FinTech. Fits your understanding of digital wealth and payments. Flexible internship.",
-        "tip": "Highlight NetBanking and UPI mandate flow designs from your wealth tools project."
-    },
-    {
-        "title": "Product Analyst",
-        "company": "Pearl (India)",
-        "category": "Product Management",
-        "employment": "Full-time",
-        "chance": "Very High",
-        "url": "https://boards.greenhouse.io/pearl",
-        "fits": "Global AI network. Matches your data-driven problem-solving projects.",
-        "tip": "Highlight your working capital statistical correlation study to prove analytical depth."
-    },
-    {
         "title": "APM Intern (Remote)",
         "company": "Acko (India)",
         "category": "Product Management",
@@ -250,26 +230,6 @@
         "tip": "Emphasize your understanding of NetBanking and UPI mandate flows."
     },
     {
-        "title": "Associate Portfolio Data Analyst",
-        "company": "Addepar (India)",
-        "category": "Finance & Operations",
-        "employment": "Full-time",
-        "chance": "Very High",
-        "url": "https://boards.greenhouse.io/addepar",
-        "fits": "Wealth management technology. Perfectly matches B.Com and WealthTech.",
-        "tip": "Highlight corporate accounting courses and Perccent internship."
-    },
-    {
-        "title": "Alts Data Operations Analyst",
-        "company": "Addepar (India)",
-        "category": "Finance & Operations",
-        "employment": "Full-time",
-        "chance": "Very High",
-        "url": "https://boards.greenhouse.io/addepar",
-        "fits": "Alternative investments. Aligns with minor/NRI investor research.",
-        "tip": "Showcase your research on fee models and untapped investor segments."
-    },
-    {
         "title": "Procurement Analyst",
         "company": "Precision Medicine Group (India)",
         "category": "Finance & Operations",
@@ -378,16 +338,6 @@
         "url": "https://unstop.com/internships?specialisation=Marketing",
         "fits": "Remote marketing/growth internships in India. Part-time.",
         "tip": "Showcase Google Fundamentals of Marketing certification."
-    },
-    {
-        "title": "Growth Marketing Associate",
-        "company": "Simpl (India)",
-        "category": "Marketing & Growth",
-        "employment": "Full-time",
-        "chance": "Very High",
-        "url": "https://getsimpl.com/careers",
-        "fits": "Fintech growth and user acquisition.",
-        "tip": "Highlight social media marketing content created for Perccent."
     },
     {
         "title": "Marketing Analyst",
@@ -508,6 +458,256 @@
         "url": "https://www.upgrad.com/careers/",
         "fits": "Outbound student counseling and sales.",
         "tip": "Highlight outreach and leadership soft skills."
+    },
+    {
+        "title": "Sales Intern",
+        "company": "PepsiCo (India) (Return)",
+        "category": "Sales & BD",
+        "employment": "Part-time",
+        "chance": "Extremely High",
+        "url": "https://www.pepsicojobs.com/",
+        "fits": "Keep an eye on PepsiCo careers. Fits Sales simulation. Part-time.",
+        "tip": "Lead with your PepsiCo Sales Job Simulation completion."
+    },
+    {
+        "title": "Business Development Associate",
+        "company": "Instahyre (India)",
+        "category": "Sales & BD",
+        "employment": "Full-time",
+        "chance": "Standard",
+        "url": "https://www.instahyre.com/jobs-in-india/?search=Business+Development+Associate",
+        "fits": "Startup sales roles on Instahyre in India.",
+        "tip": "Emphasize outreach and problem-solving skills."
+    },
+    {
+        "title": "Business Development Intern",
+        "company": "Internshala (India)",
+        "category": "Sales & BD",
+        "employment": "Part-time",
+        "chance": "Extremely High",
+        "url": "https://internshala.com/internships/work-from-home-business-development-internships/",
+        "fits": "Remote BD internships for students in India. Part-time.",
+        "tip": "Highlight sales simulation and client communication skills."
+    },
+    {
+        "title": "Customer Success Analyst",
+        "company": "Pocket FM (India)",
+        "category": "Sales & BD",
+        "employment": "Full-time",
+        "chance": "Very High",
+        "url": "https://www.pocketfm.com/careers",
+        "fits": "Remote customer success roles at audio platform.",
+        "tip": "Highlight problem-solving and creative writing."
+    },
+    {
+        "title": "Business Development Associate",
+        "company": "Indeed India",
+        "category": "Sales & BD",
+        "employment": "Full-time",
+        "chance": "Standard",
+        "url": "https://in.indeed.com/q-business-development-associate-l-remote-jobs.html",
+        "fits": "Aggregated BD roles in India.",
+        "tip": "Emphasize communication skills and sales training."
+    },
+    {
+        "title": "Subject Matter Expert (Commerce)",
+        "company": "Chegg India",
+        "category": "Finance & Operations",
+        "employment": "Part-time",
+        "chance": "Extremely High",
+        "url": "https://www.cheggindia.com/",
+        "fits": "Directly uses your B.Com knowledge and Corporate Accounting courses.",
+        "tip": "Pass a basic online MCQ test in accounting. Very high selection rate once passed."
+    },
+    {
+        "title": "Doubt Solving Expert (Accounting)",
+        "company": "Doubtnut (India)",
+        "category": "Finance & Operations",
+        "employment": "Part-time",
+        "chance": "Extremely High",
+        "url": "https://www.doubtnut.com/",
+        "fits": "Fits your Corporate Accounting and Direct Tax coursework.",
+        "tip": "Register as an expert and solve sample commerce problems online."
+    },
+    {
+        "title": "Brainly Moderator (Part-time)",
+        "company": "Brainly India",
+        "category": "Business Analysis",
+        "employment": "Part-time",
+        "chance": "Extremely High",
+        "url": "https://brainly.in/",
+        "fits": "Reviewing commerce doubts. Fits B.Com degree.",
+        "tip": "Apply through their contributor program. Focus on accuracy and clear writing."
+    },
+    {
+        "title": "Commerce QA Expert",
+        "company": "Toppr (India)",
+        "category": "Finance & Operations",
+        "employment": "Part-time",
+        "chance": "Extremely High",
+        "url": "https://www.toppr.com/",
+        "fits": "Answering commerce questions. Fits B.Com education.",
+        "tip": "Take their simple subject competency test. Highly flexible hours."
+    },
+    {
+        "title": "Accounting Doubt Solver",
+        "company": "Kunduz India",
+        "category": "Finance & Operations",
+        "employment": "Part-time",
+        "chance": "Extremely High",
+        "url": "https://kunduz.com/",
+        "fits": "Solving basic accounting questions. Matches B.Com.",
+        "tip": "Download the Kunduz Tutor app, upload your B.Com ID/degree, and start solving."
+    },
+    {
+        "title": "GST/Tax Doubt Solver",
+        "company": "Taxmann (India)",
+        "category": "Finance & Operations",
+        "employment": "Part-time",
+        "chance": "Extremely High",
+        "url": "https://www.taxmann.com/",
+        "fits": "Fits your Direct Tax and GST courses listed on your resume.",
+        "tip": "Highlight your specific academic courses in Direct Tax and GST."
+    },
+    {
+        "title": "Commerce Tutor (Part-time)",
+        "company": "Cuemath (India)",
+        "category": "Finance & Operations",
+        "employment": "Part-time",
+        "chance": "Very High",
+        "url": "https://www.cuemath.com/",
+        "fits": "Matches B.Com and tutoring/moderation interests.",
+        "tip": "Highlight your SGPA (8.10) to show strong academic performance."
+    },
+    {
+        "title": "Academic Writer (Commerce)",
+        "company": "Unstop Jobs (India)",
+        "category": "Finance & Operations",
+        "employment": "Part-time",
+        "chance": "Extremely High",
+        "url": "https://unstop.com/internships",
+        "fits": "Answering commerce questions. Matches B.Com.",
+        "tip": "Highlight your corporate accounting and financial system courses."
+    },
+    {
+        "title": "Online Commerce Tutor",
+        "company": "Internshala Jobs (India)",
+        "category": "Finance & Operations",
+        "employment": "Part-time",
+        "chance": "Extremely High",
+        "url": "https://internshala.com/internships/work-from-home-teaching-internships/",
+        "fits": "Tutor B.Com and higher secondary students.",
+        "tip": "Pitch your high academic performance (SGPA 8.10) and clear communication."
+    },
+    {
+        "title": "Data Entry Operator",
+        "company": "Awign (India)",
+        "category": "Finance & Operations",
+        "employment": "Part-time",
+        "chance": "Extremely High",
+        "url": "https://www.awign.com/",
+        "fits": "Data entry. Matches your Google Docs and Notion technical skills.",
+        "tip": "Complete their basic training module on the Awign app to get assigned."
+    },
+    {
+        "title": "Cataloging Associate",
+        "company": "Blinkit (India)",
+        "category": "Finance & Operations",
+        "employment": "Part-time",
+        "chance": "Extremely High",
+        "url": "https://blinkit.com/careers",
+        "fits": "Entering grocery item data. Matches basic computer skills.",
+        "tip": "Mention your FMCG project analyzing cycles of HUL, ITC, and Nestle."
+    },
+    {
+        "title": "Virtual Assistant (Part-time)",
+        "company": "Internshala Jobs (India)",
+        "category": "Finance & Operations",
+        "employment": "Part-time",
+        "chance": "Extremely High",
+        "url": "https://internshala.com/internships/work-from-home-data-entry-internships/",
+        "fits": "Calendar management, emails. Matches Google Docs/Notion.",
+        "tip": "Highlight your soft skills in leadership and creative writing."
+    },
+    {
+        "title": "Data Entry Remote",
+        "company": "Indeed India",
+        "category": "Finance & Operations",
+        "employment": "Part-time",
+        "chance": "Extremely High",
+        "url": "https://in.indeed.com/q-part-time-data-entry-l-remote-jobs.html",
+        "fits": "Form entry. Matches MS PowerPoint and Google Docs.",
+        "tip": "Filter for 'Urgent Hiring' tags. Apply to multiple listings daily."
+    },
+    {
+        "title": "Virtual Assistant",
+        "company": "WorkIndia Portal (India)",
+        "category": "Finance & Operations",
+        "employment": "Part-time",
+        "chance": "Extremely High",
+        "url": "https://www.workindia.in/",
+        "fits": "Virtual assistance. Matches soft skills.",
+        "tip": "Call the HR directly using the WorkIndia app contact feature."
+    },
+    {
+        "title": "Data Entry Associate",
+        "company": "Apna App (India)",
+        "category": "Finance & Operations",
+        "employment": "Part-time",
+        "chance": "Extremely High",
+        "url": "https://apna.co/",
+        "fits": "Data entry. Matches typing and basic Excel.",
+        "tip": "Apply to listings with high response rates and immediate start dates."
+    },
+    {
+        "title": "Gig Delivery Auditor",
+        "company": "Taskmo (India)",
+        "category": "Finance & Operations",
+        "employment": "Part-time",
+        "chance": "Extremely High",
+        "url": "https://taskmo.com/",
+        "fits": "Verifying deliveries. Matches attention to detail.",
+        "tip": "Download the Taskmo app, select the remote audit gig, and start working."
+    },
+    {
+        "title": "Data Digitization Agent",
+        "company": "Gigforce (India)",
+        "category": "Finance & Operations",
+        "employment": "Part-time",
+        "chance": "Extremely High",
+        "url": "https://www.gigforce.in/",
+        "fits": "Digitizing handwritten documents. Matches typing skills.",
+        "tip": "Register on Gigforce. Complete the data entry test to get activated."
+    },
+    {
+        "title": "Freelancer (Data Entry)",
+        "company": "Truelancer India",
+        "category": "Finance & Operations",
+        "employment": "Part-time",
+        "chance": "Extremely High",
+        "url": "https://www.truelancer.com/",
+        "fits": "Data entry. Matches Google Docs/Excel skills.",
+        "tip": "Bid on simple data entry projects. Offer a competitive rate to get selected."
+    },
+    {
+        "title": "Freelancer (Content/Writing)",
+        "company": "Fiverr India",
+        "category": "Marketing & Growth",
+        "employment": "Part-time",
+        "chance": "Extremely High",
+        "url": "https://www.fiverr.com/",
+        "fits": "Writing articles. Matches creative writing soft skills.",
+        "tip": "Create a gig for 'B.Com graduate writing personal finance or marketing blogs'."
+    },
+    {
+        "title": "Freelancer (Data Cleaning)",
+        "company": "Freelancer India",
+        "category": "Finance & Operations",
+        "employment": "Part-time",
+        "chance": "Extremely High",
+        "url": "https://www.freelancer.in/",
+        "fits": "Cleaning lists in Excel. Matches Tata Data Vis and Excel.",
+        "tip": "Highlight your Tata Data Visualisation certification on your profile."
     },
     {
         "title": "Sales Intern",
