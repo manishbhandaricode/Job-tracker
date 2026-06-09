@@ -33,6 +33,8 @@ jobs:
     - name: Run Job Finder Script
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       run: python auto_job_finder.py
 
     - name: Commit and Push Updates

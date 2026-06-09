@@ -149,6 +149,43 @@ def fetch_jobicy_jobs():
         print(f"Error fetching from Jobicy: {e}")
     return []
 
+def send_telegram_alert(new_jobs):
+    print("Preparing to send Telegram alert...")
+    bot_token = os.environ.get("TELEGRAM_BOT_TOKEN")
+    chat_id = os.environ.get("TELEGRAM_CHAT_ID")
+    
+    if not bot_token or not chat_id:
+        print("Telegram credentials not found (TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID missing). Skipping alert.")
+        return
+
+    message = f"🚨 *{len(new_jobs)} New Remote Jobs Found!*\n\n"
+    for i, job in enumerate(new_jobs[:5]): # limit to 5 to avoid message size limits
+        message += f"*{i+1}. {job['title']}* at {job['company']}\n"
+        message += f"Link: {job['url']}\n"
+        message += f"Fits: _{job['fits']}_\n\n"
+        
+    if len(new_jobs) > 5:
+        message += f"...and {len(new_jobs) - 5} more!\n\n"
+        
+    message += "🌐 [View your Dashboard](https://jobtracker-ten-zeta.vercel.app/)"
+
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    payload = {
+        "chat_id": chat_id,
+        "text": message,
+        "parse_mode": "Markdown",
+        "disable_web_page_preview": True
+    }
+    
+    try:
+        response = requests.post(url, json=payload, timeout=10)
+        if response.status_code == 200:
+            print("Successfully sent Telegram alert!")
+        else:
+            print(f"Failed to send Telegram alert: {response.text}")
+    except Exception as e:
+        print(f"Error sending Telegram alert: {e}")
+
 def main():
     print("Starting Automated Job Finder...")
     
@@ -264,6 +301,10 @@ def main():
             json.dump(updated_jobs, f, indent=4, ensure_ascii=False)
             
         print(f"Successfully updated jobs.json! Database now has {len(updated_jobs)} jobs.")
+        
+        # Send Alert
+        send_telegram_alert(new_matches)
+
     else:
         print("No new matches found. Database remains unchanged.")
 
