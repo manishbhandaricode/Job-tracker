@@ -186,18 +186,54 @@ def send_telegram_alert(new_jobs):
     except Exception as e:
         print(f"Error sending Telegram alert: {e}")
 
+def cleanup_dead_jobs(jobs_list):
+    print(f"Cleaning up dead links from {len(jobs_list)} existing jobs...")
+    cleaned = []
+    removed_count = 0
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+    
+    # Only check the first 50 to avoid taking too long in GitHub Actions
+    for idx, job in enumerate(jobs_list):
+        url = job.get("url")
+        if not url or idx > 50:
+            cleaned.append(job)
+            continue
+            
+        try:
+            response = requests.get(url, headers=headers, timeout=5, allow_redirects=True)
+            if response.status_code in [404, 410]:
+                print(f"  [Auto-Cleanup] Removing dead job: {job.get('title')} at {job.get('company')} (Status {response.status_code})")
+                removed_count += 1
+            else:
+                cleaned.append(job)
+        except Exception:
+            cleaned.append(job)
+            
+    # Add the remaining unchecked jobs
+    if len(jobs_list) > 50:
+        cleaned.extend(jobs_list[51:])
+        
+    print(f"Cleanup finished. Removed {removed_count} dead jobs.")
+    return cleaned, removed_count
+
 def main():
     print("Starting Automated Job Finder...")
     
     # Load existing jobs database
     jobs_file_path = os.path.join(os.path.dirname(__file__), "jobs.json")
     if os.path.exists(jobs_file_path):
-        with open(jobs_file_path, "r", encoding="utf-8") as f:
-            existing_jobs = json.load(f)
+        try:
+            with open(jobs_file_path, "r", encoding="utf-8") as f:
+                existing_jobs = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            existing_jobs = []
     else:
         existing_jobs = []
         
     print(f"Loaded {len(existing_jobs)} existing jobs from database.")
+    
+    # Clean up dead jobs
+    existing_jobs, removed_count = cleanup_dead_jobs(existing_jobs)
     
     # Get existing URLs to prevent duplicates
     existing_urls = {j.get("url") for j in existing_jobs if j.get("url")}
@@ -288,7 +324,7 @@ def main():
 
     print(f"Gemini analysis complete. Found {matched_jobs_count} new matches.")
 
-    if new_matches:
+    if new_matches or removed_count > 0:
         # Merge new matches into existing jobs
         # Add to the beginning of the list to display newest first
         updated_jobs = new_matches + existing_jobs
@@ -302,11 +338,12 @@ def main():
             
         print(f"Successfully updated jobs.json! Database now has {len(updated_jobs)} jobs.")
         
-        # Send Alert
-        send_telegram_alert(new_matches)
+        # Send Alert only if there are NEW matches
+        if new_matches:
+            send_telegram_alert(new_matches)
 
     else:
-        print("No new matches found. Database remains unchanged.")
+        print("No new matches found and no dead jobs removed. Database remains unchanged.")
 
 if __name__ == "__main__":
     main()

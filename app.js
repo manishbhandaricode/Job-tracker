@@ -35,26 +35,39 @@ document.addEventListener('DOMContentLoaded', () => {
             jobGrid.innerHTML = `<div class="loading-spinner">Failed to load jobs. Please make sure jobs.json exists.</div>`;
         });
 
+    // Generate a stable key independent of array index
+    function getJobKey(job) {
+        const c = (job.company || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        const t = (job.title || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        return `job-status-${c}-${t}`;
+    }
+
     // Initialize statuses in localStorage if not already present
     function initializeStatuses() {
         jobs.forEach((job, index) => {
-            const key = `job-status-${index}-${job.company.replace(/\s+/g, '-')}`;
-            if (!localStorage.getItem(key)) {
-                localStorage.setItem(key, 'Not Applied');
+            // Check for legacy index-based key and migrate if exists
+            const legacyKey = `job-status-${index}-${job.company.replace(/\s+/g, '-')}`;
+            const newKey = getJobKey(job);
+            
+            if (localStorage.getItem(legacyKey)) {
+                localStorage.setItem(newKey, localStorage.getItem(legacyKey));
+                localStorage.removeItem(legacyKey); // Clean up old key
+            }
+            
+            if (!localStorage.getItem(newKey)) {
+                localStorage.setItem(newKey, 'Not Applied');
             }
         });
     }
 
     // Get status from localStorage
-    function getJobStatus(job, index) {
-        const key = `job-status-${index}-${job.company.replace(/\s+/g, '-')}`;
-        return localStorage.getItem(key) || 'Not Applied';
+    function getJobStatus(job) {
+        return localStorage.getItem(getJobKey(job)) || 'Not Applied';
     }
 
     // Set status in localStorage
-    function setJobStatus(job, index, status) {
-        const key = `job-status-${index}-${job.company.replace(/\s+/g, '-')}`;
-        localStorage.setItem(key, status);
+    function setJobStatus(job, status) {
+        localStorage.setItem(getJobKey(job), status);
         updateStats();
         renderJobs(); // Re-render to apply new filters if active
     }
@@ -65,8 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let applied = 0;
         let pending = 0;
 
-        jobs.forEach((job, index) => {
-            const status = getJobStatus(job, index);
+        jobs.forEach((job) => {
+            const status = getJobStatus(job);
             if (status === 'Applied' || status === 'Interviewing' || status === 'Offered') {
                 applied++;
             } else {
@@ -87,8 +100,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const category = categoryFilter.value;
         const statusVal = statusFilter.value;
 
-        return jobs.filter((job, index) => {
-            const status = getJobStatus(job, index);
+        return jobs.filter((job) => {
+            const status = getJobStatus(job);
             
             // Search Query Filter
             const matchesQuery = !query || 
@@ -127,10 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         jobGrid.innerHTML = '';
 
-        filtered.forEach(job => {
-            // Find the original index of this job in the full list
-            const originalIndex = jobs.findIndex(j => j.company === job.company && j.title === job.title);
-            const status = getJobStatus(job, originalIndex);
+        filtered.forEach((job, idx) => {
+            const status = getJobStatus(job);
 
             // Create Card Element
             const card = document.createElement('div');
@@ -158,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 <div class="card-bottom">
                     <a href="${job.url}" target="_blank" class="apply-btn">Apply Now ↗</a>
-                    <select class="status-dropdown" data-status="${status}" data-index="${originalIndex}">
+                    <select class="status-dropdown" data-status="${status}" data-company="${job.company}" data-title="${job.title}">
                         <option value="Not Applied" ${status === 'Not Applied' ? 'selected' : ''}>Not Applied</option>
                         <option value="Applied" ${status === 'Applied' ? 'selected' : ''}>Applied</option>
                         <option value="Interviewing" ${status === 'Interviewing' ? 'selected' : ''}>Interviewing</option>
@@ -175,10 +186,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add Event Listeners to Dropdowns
         document.querySelectorAll('.status-dropdown').forEach(dropdown => {
             dropdown.addEventListener('change', (e) => {
-                const index = parseInt(e.target.getAttribute('data-index'));
+                const company = e.target.getAttribute('data-company');
+                const title = e.target.getAttribute('data-title');
                 const newStatus = e.target.value;
-                const job = jobs[index];
-                setJobStatus(job, index, newStatus);
+                const job = jobs.find(j => j.company === company && j.title === title);
+                if (job) {
+                    setJobStatus(job, newStatus);
+                }
             });
         });
     }
