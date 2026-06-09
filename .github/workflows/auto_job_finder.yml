@@ -1,0 +1,46 @@
+name: Automated Remote Job Finder
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    # Run twice daily (00:00 and 12:00 UTC / 5:30 AM and 5:30 PM IST)
+    - cron: '0 0,12 * * *'
+  workflow_dispatch:
+    # Allow manual triggering from the GitHub Actions tab
+
+jobs:
+  run-finder:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run Job Finder Script
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      run: python auto_job_finder.py
+
+    - name: Commit and Push Updates
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add jobs.json
+        # Only commit if jobs.json has changes
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update job listings [skip ci]" && git push)

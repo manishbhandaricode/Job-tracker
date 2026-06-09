@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manish Bhandari — Remote Job Finder & Tracker</title>
+    <!-- Google Fonts: Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-glow">
+        <div class="glow-1"></div>
+        <div class="glow-2"></div>
+    </div>
+
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand">
+                <span class="logo-icon">💼</span>
+                <div>
+                    <h1>MANISH BHANDARI</h1>
+                    <p class="subtitle">India Remote Job Finder & Application Tracker</p>
+                </div>
+            </div>
+            <div class="stats-summary" id="stats-summary">
+                <div class="stat-card">
+                    <span class="stat-num" id="total-count">0</span>
+                    <span class="stat-lbl">Total Jobs</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-num" id="applied-count">0</span>
+                    <span class="stat-lbl">Applied</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-num" id="pending-count">0</span>
+                    <span class="stat-lbl">Pending</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <!-- Sidebar Filters -->
+        <aside class="sidebar-filters">
+            <div class="filter-card">
+                <h2>Search & Filters</h2>
+                
+                <!-- Search -->
+                <div class="filter-group">
+                    <label for="search-input">Search Jobs or Companies</label>
+                    <input type="text" id="search-input" placeholder="Type keywords...">
+                </div>
+
+                <!-- Employment Type -->
+                <div class="filter-group">
+                    <label for="type-filter">Employment Type</label>
+                    <select id="type-filter">
+                        <option value="all">All Types (Full & Part-Time)</option>
+                        <option value="Full-time">Full-Time Only</option>
+                        <option value="Part-time">Part-Time Only</option>
+                    </select>
+                </div>
+
+                <!-- Selection Chance -->
+                <div class="filter-group">
+                    <label for="chance-filter">Selection Chance</label>
+                    <select id="chance-filter">
+                        <option value="all">All Levels</option>
+                        <option value="Extremely High">Extremely High Chance (Easy Hire)</option>
+                        <option value="Very High">Very High Chance</option>
+                        <option value="Standard">Standard Chance</option>
+                    </select>
+                </div>
+
+                <!-- Category -->
+                <div class="filter-group">
+                    <label for="category-filter">Job Category</label>
+                    <select id="category-filter">
+                        <option value="all">All Categories</option>
+                        <option value="Product Management">Product Management</option>
+                        <option value="Business Analysis">Business Analysis</option>
+                        <option value="Finance & Operations">Finance & Operations</option>
+                        <option value="Marketing & Growth">Marketing & Growth</option>
+                        <option value="Sales & BD">Sales & Business Development</option>
+                    </select>
+                </div>
+
+                <!-- Status Filter -->
+                <div class="filter-group">
+                    <label for="status-filter">Application Status</label>
+                    <select id="status-filter">
+                        <option value="all">All Statuses</option>
+                        <option value="Not Applied">Not Applied / Pending</option>
+                        <option value="Applied">Applied</option>
+                        <option value="Interviewing">Interviewing</option>
+                        <option value="Offered">Offered</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+                
+                <button class="reset-btn" id="reset-btn">Reset Filters</button>
+                <button class="settings-btn" id="settings-btn" style="margin-top: 0.5rem; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); color: #93c5fd; padding: 0.75rem; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; width: 100%;">⚙️ Edit Preferences</button>
+            </div>
+
+            <!-- Simplify Integration Card -->
+            <div class="info-card">
+                <h3>🚀 Semi-Auto Applicator</h3>
+                <p>Use the <strong>Simplify Copilot</strong> Chrome extension to autofill these job forms in 1 second.</p>
+                <a href="https://chromewebstore.google.com/detail/simplify-copilot-autofill/pbanppmidnfekojnghblbblpafnmaefo" target="_blank" class="info-link">Get Extension ↗</a>
+            </div>
+        </aside>
+
+        <!-- Job Grid -->
+        <section class="job-section">
+            <div class="job-list-header">
+                <span class="results-count" id="results-count">Showing 0 jobs</span>
+                <div class="view-toggles">
+                    <button class="view-btn active" id="grid-view-btn">Grid</button>
+                    <button class="view-btn" id="list-view-btn">List</button>
+                </div>
+            </div>
+
+            <div class="job-grid" id="job-grid">
+                <!-- Job cards rendered dynamically by app.js -->
+                <div class="loading-spinner">Loading job opportunities...</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>⚙️ Automated Finder Preferences</h2>
+                <button class="close-modal-btn" id="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">These settings control how the AI finds and matches remote jobs for you. Saving will automatically update your GitHub repository.</p>
+                
+                <div class="filter-group">
+                    <label for="pref-keywords">Target Keywords (comma separated)</label>
+                    <input type="text" id="pref-keywords" placeholder="e.g. analyst, product, intern...">
+                </div>
+
+                <div class="filter-group" style="flex: 1;">
+                    <label for="pref-profile">Your Profile/Resume Summary</label>
+                    <textarea id="pref-profile" rows="10" placeholder="Paste your resume details here for the AI..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <span id="save-status" class="save-status"></span>
+                <button class="apply-btn" id="save-prefs-btn" style="border: none; cursor: pointer; background: var(--primary); color: white;">Save to GitHub</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="app-footer">
+        <p>&copy; 2026 Manish Bhandari. All rights reserved. Job finder automated via Python and Git.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
