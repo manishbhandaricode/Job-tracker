@@ -400,9 +400,22 @@ body {
     margin-top: 0.25rem;
 }
 
+.company-date-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .job-company {
     font-size: 0.9rem;
     color: var(--text-muted);
+}
+
+.job-date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    opacity: 0.8;
 }
 
 .card-body {

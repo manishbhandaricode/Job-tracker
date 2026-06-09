@@ -145,7 +145,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="badge badge-chance ${job.chance === 'Extremely High' ? 'extremely-high' : ''}">${job.chance} Chance</span>
                     </div>
                     <h3>${job.title}</h3>
-                    <div class="job-company">${job.company}</div>
+                    <div class="company-date-row">
+                        <div class="job-company">${job.company}</div>
+                        <div class="job-date">Added: ${job.date_discovered || 'Legacy'}</div>
+                    </div>
                 </div>
 
                 <div class="card-body">
