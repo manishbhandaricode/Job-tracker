@@ -166,16 +166,19 @@ def send_telegram_alert(new_jobs):
         print("Telegram credentials not found (TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID missing). Skipping alert.")
         return
 
-    message = f"🚨 *{len(new_jobs)} New Remote Jobs Found!*\n\n"
-    for i, job in enumerate(new_jobs[:5]): # limit to 5 to avoid message size limits
-        message += f"*{i+1}. {job['title']}* at {job['company']}\n"
-        message += f"Link: {job['url']}\n"
-        message += f"Fits: _{job['fits']}_\n\n"
-        
-    if len(new_jobs) > 5:
-        message += f"...and {len(new_jobs) - 5} more!\n\n"
-        
-    message += "🌐 [View your Dashboard](https://jobtracker-ten-zeta.vercel.app/)"
+    if not new_jobs:
+        message = "✅ *Job Tracker Update*\n\nI just scanned the market but didn't find any *new* entry-level/fresher jobs that match your profile right now.\n\nDon't worry, I'll check again in 12 hours!\n\n🌐 [View your Dashboard](https://jobtracker-ten-zeta.vercel.app/)"
+    else:
+        message = f"🚨 *{len(new_jobs)} New Remote Jobs Found!*\n\n"
+        for i, job in enumerate(new_jobs[:5]): # limit to 5 to avoid message size limits
+            message += f"*{i+1}. {job['title']}* at {job['company']}\n"
+            message += f"Link: {job['url']}\n"
+            message += f"Fits: _{job['fits']}_\n\n"
+            
+        if len(new_jobs) > 5:
+            message += f"...and {len(new_jobs) - 5} more!\n\n"
+            
+        message += "🌐 [View your Dashboard](https://jobtracker-ten-zeta.vercel.app/)"
 
     url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
     payload = {
@@ -376,12 +379,13 @@ def main():
             
         print(f"Successfully updated jobs.json! Database now has {len(updated_jobs)} jobs.")
         
-        # Send Alert only if there are NEW matches
-        if new_matches:
-            send_telegram_alert(new_matches)
+        # Send Alert (will send either new jobs or a 'none found' summary)
+        send_telegram_alert(new_matches)
 
     else:
         print("No new matches found and no dead jobs removed. Database remains unchanged.")
+        # Send a summary alert even if nothing changed in the database
+        send_telegram_alert([])
 
 if __name__ == "__main__":
     main()
