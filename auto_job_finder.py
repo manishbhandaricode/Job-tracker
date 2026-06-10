@@ -92,8 +92,8 @@ Return a JSON object with this exact structure:
   "title": "Cleaned Job Title (e.g. Associate Product Manager, Business Analyst Intern)",
   "company": "Company Name",
   "employment": "Full-time" or "Part-time",
-  "chance": "Extremely High" or "Very High" or "Standard" (Extremely/Very High for academic doubt solvers, customer support, telesales, content writing, data entry, operations. Standard for APM/Analyst roles),
-  "category": "Product Management" or "Business Analysis" or "Finance & Operations" or "Marketing & Growth" or "Sales & BD",
+  "chance": "Extremely High" or "Very High" or "Standard" (Extremely/Very High for academic doubt solvers, customer support, telesales, hr, operations. Standard for APM/Analyst roles),
+  "category": "Product Management" or "Business Analysis" or "Finance & Operations" or "Marketing & Growth" or "Sales & BD" or "Human Resources",
   "fits": "A 1-2 sentence explanation of why this job fits Manish's resume.",
   "tip": "A 1-2 sentence application tip focusing on what Manish should highlight from his resume."
 }}

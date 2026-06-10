@@ -14,6 +14,7 @@
     --color-finance: #10b981;     /* Emerald Green */
     --color-marketing: #f59e0b;   /* Amber */
     --color-sales: #ec4899;       /* Pink */
+    --color-hr: #f43f5e;          /* Rose */
     
     /* Status Colors */
     --status-not-applied: #6b7280; /* Gray */
@@ -371,6 +372,7 @@ body {
 .badge-category[data-cat="Finance & Operations"] { border-color: var(--color-finance); }
 .badge-category[data-cat="Marketing & Growth"] { border-color: var(--color-marketing); }
 .badge-category[data-cat="Sales & BD"] { border-color: var(--color-sales); }
+.badge-category[data-cat="Human Resources"] { border-color: var(--color-hr); }
 
 .badge-employment {
     background: rgba(232, 245, 233, 0.1);
