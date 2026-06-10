@@ -192,27 +192,57 @@ def cleanup_dead_jobs(jobs_list):
     removed_count = 0
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
     
-    # Only check the first 50 to avoid taking too long in GitHub Actions
+    closure_phrases = [
+        "no longer available", "job is closed", "position has been filled", 
+        "page not found", "404 not found", "this job has expired",
+        "we're sorry, but this job is no longer available"
+    ]
+    
+    # Check all jobs instead of just 50. GitHub Actions has enough time.
     for idx, job in enumerate(jobs_list):
         url = job.get("url")
-        if not url or idx > 50:
-            cleaned.append(job)
+        if not url:
             continue
             
         try:
-            response = requests.get(url, headers=headers, timeout=5, allow_redirects=True)
-            if response.status_code in [404, 410]:
-                print(f"  [Auto-Cleanup] Removing dead job: {job.get('title')} at {job.get('company')} (Status {response.status_code})")
+            # Set a timeout of 10 seconds to allow for redirects
+            response = requests.get(url, headers=headers, timeout=10, allow_redirects=True)
+            
+            is_dead = False
+            
+            # 1. Check HTTP Status
+            if response.status_code in [404, 410, 403, 400]:
+                is_dead = True
+                reason = f"Status {response.status_code}"
+                
+            # 2. Check for generic redirects (e.g. redirected to main careers page)
+            elif response.url != url:
+                # If the original url had an ID but the new one doesn't, it's likely a generic redirect
+                # This is a basic heuristic. If the new URL is too short compared to old one.
+                if len(response.url.split('/')) < len(url.split('/')) - 1:
+                    is_dead = True
+                    reason = "Redirected to generic page"
+                    
+            # 3. Check Page Content for closure phrases
+            if not is_dead:
+                html_lower = response.text.lower()
+                for phrase in closure_phrases:
+                    if phrase in html_lower:
+                        is_dead = True
+                        reason = f"Found phrase: '{phrase}'"
+                        break
+            
+            if is_dead:
+                print(f"  [Auto-Cleanup] Removing dead job: {job.get('title')} at {job.get('company')} ({reason})")
                 removed_count += 1
             else:
                 cleaned.append(job)
-        except Exception:
-            cleaned.append(job)
+                
+        except Exception as e:
+            # If there's a connection error or timeout, we remove the job to be safe
+            print(f"  [Auto-Cleanup] Removing dead job: {job.get('title')} at {job.get('company')} (Connection Error)")
+            removed_count += 1
             
-    # Add the remaining unchecked jobs
-    if len(jobs_list) > 50:
-        cleaned.extend(jobs_list[51:])
-        
     print(f"Cleanup finished. Removed {removed_count} dead jobs.")
     return cleaned, removed_count
 
