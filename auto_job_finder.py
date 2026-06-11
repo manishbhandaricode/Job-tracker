@@ -30,8 +30,8 @@ def pre_filter_job(title, description, location):
     Do a quick keyword check to filter out obviously irrelevant jobs 
     (e.g., Senior Software Developers, DevOps, US-only roles) before calling Gemini.
     """
-    title_lower = title.lower()
-    desc_lower = description.lower()
+    title_lower = title.lower() if title else ""
+    desc_lower = description.lower() if description else ""
     loc_lower = location.lower() if location else ""
 
     # 1. Location check - exclude if it specifies US, UK, Europe ONLY and excludes worldwide/India
