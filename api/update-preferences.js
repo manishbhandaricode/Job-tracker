@@ -3,10 +3,15 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { profile, keywords } = req.body;
+  const { profile, keywords, password } = req.body;
 
   if (!profile || !keywords || !Array.isArray(keywords)) {
     return res.status(400).json({ error: 'Invalid data format' });
+  }
+
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (adminPassword && password !== adminPassword) {
+    return res.status(401).json({ error: 'Unauthorized: Incorrect password' });
   }
 
   const githubToken = process.env.GITHUB_TOKEN;

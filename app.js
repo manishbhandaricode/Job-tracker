@@ -1,39 +1,87 @@
 document.addEventListener('DOMContentLoaded', () => {
-    let jobs = [];
-    let currentView = 'grid'; // 'grid' or 'list'
+    // --- Authentication Logic ---
+    const loginOverlay = document.getElementById('login-overlay');
+    const loginPassword = document.getElementById('login-password');
+    const loginBtn = document.getElementById('login-btn');
+    const loginError = document.getElementById('login-error');
 
-    // DOM Elements
-    const jobGrid = document.getElementById('job-grid');
-    const totalCountEl = document.getElementById('total-count');
-    const appliedCountEl = document.getElementById('applied-count');
-    const pendingCountEl = document.getElementById('pending-count');
-    const resultsCountEl = document.getElementById('results-count');
-    
-    // Filter Elements
-    const searchInput = document.getElementById('search-input');
-    const typeFilter = document.getElementById('type-filter');
-    const chanceFilter = document.getElementById('chance-filter');
-    const categoryFilter = document.getElementById('category-filter');
-    const statusFilter = document.getElementById('status-filter');
-    const resetBtn = document.getElementById('reset-btn');
-    
-    // View Toggles
-    const gridViewBtn = document.getElementById('grid-view-btn');
-    const listViewBtn = document.getElementById('list-view-btn');
+    const savedPwd = localStorage.getItem('admin_pwd');
+    if (savedPwd) {
+        verifyPassword(savedPwd, true);
+    }
 
-    // Fetch Jobs Data
-    fetch('jobs.json')
-        .then(response => response.json())
-        .then(data => {
-            jobs = data;
-            initializeStatuses();
-            updateStats();
-            renderJobs();
-        })
-        .catch(err => {
-            console.error('Error loading jobs:', err);
-            jobGrid.innerHTML = `<div class="loading-spinner">Failed to load jobs. Please make sure jobs.json exists.</div>`;
-        });
+    loginBtn.addEventListener('click', () => {
+        const pwd = loginPassword.value;
+        if (pwd) verifyPassword(pwd, false);
+    });
+
+    async function verifyPassword(pwd, isAutoLogin) {
+        if (!isAutoLogin) loginBtn.textContent = 'Verifying...';
+        try {
+            const res = await fetch('/api/authenticate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: pwd })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                localStorage.setItem('admin_pwd', pwd);
+                loginOverlay.classList.add('hidden');
+                initDashboard();
+            } else {
+                if (!isAutoLogin) {
+                    loginError.textContent = data.error || 'Incorrect password';
+                    loginError.style.display = 'block';
+                } else {
+                    localStorage.removeItem('admin_pwd');
+                }
+            }
+        } catch (err) {
+            if (!isAutoLogin) {
+                loginError.textContent = 'Network error. Please try again.';
+                loginError.style.display = 'block';
+            }
+        } finally {
+            if (!isAutoLogin) loginBtn.textContent = 'Unlock Dashboard';
+        }
+    }
+
+    function initDashboard() {
+        let jobs = [];
+        let currentView = 'grid'; // 'grid' or 'list'
+
+        // DOM Elements
+        const jobGrid = document.getElementById('job-grid');
+        const totalCountEl = document.getElementById('total-count');
+        const appliedCountEl = document.getElementById('applied-count');
+        const pendingCountEl = document.getElementById('pending-count');
+        const resultsCountEl = document.getElementById('results-count');
+        
+        // Filter Elements
+        const searchInput = document.getElementById('search-input');
+        const typeFilter = document.getElementById('type-filter');
+        const chanceFilter = document.getElementById('chance-filter');
+        const categoryFilter = document.getElementById('category-filter');
+        const statusFilter = document.getElementById('status-filter');
+        const resetBtn = document.getElementById('reset-btn');
+        
+        // View Toggles
+        const gridViewBtn = document.getElementById('grid-view-btn');
+        const listViewBtn = document.getElementById('list-view-btn');
+
+        // Fetch Jobs Data
+        fetch('jobs.json')
+            .then(response => response.json())
+            .then(data => {
+                jobs = data;
+                initializeStatuses();
+                updateStats();
+                renderJobs();
+            })
+            .catch(err => {
+                console.error('Error loading jobs:', err);
+                jobGrid.innerHTML = `<div class="loading-spinner">Failed to load jobs. Please make sure jobs.json exists.</div>`;
+            });
 
     // Generate a stable key independent of array index
     function getJobKey(job) {
@@ -230,6 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
         gridViewBtn.classList.remove('active');
         renderJobs();
     });
+    } // end of initDashboard
 });
 
 // --- Settings Modal Logic ---
@@ -295,7 +344,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     profile: newProfile,
-                    keywords: newKeywords
+                    keywords: newKeywords,
+                    password: localStorage.getItem('admin_pwd')
                 })
             });
 

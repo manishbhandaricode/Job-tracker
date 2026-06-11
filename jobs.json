@@ -1,5 +1,16 @@
 [
     {
+        "match": true,
+        "title": "Inside Sales Contractor",
+        "company": "Credit Wellness, LLC",
+        "employment": "Full-time",
+        "chance": "Standard",
+        "category": "Business Analysis",
+        "fits": "Automatically matched during dry run. Fits remote business analyst criteria.",
+        "tip": "Review the job qualifications and highlight Excel skills.",
+        "url": "https://remotive.com/remote-jobs/sales/inside-sales-contractor-2086540"
+    },
+    {
         "title": "Associate Product Manager",
         "company": "Groww (India)",
         "category": "Product Management",
