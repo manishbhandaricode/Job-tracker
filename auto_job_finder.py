@@ -56,9 +56,9 @@ def pre_filter_job(title, description, location):
     if not any(word.lower() in title_lower for word in TARGET_KEYWORDS):
         return False
 
-    # 5. Experience check - strictly exclude jobs requiring 2+ years of experience
-    # Look for patterns like "2 years", "3+ years", "5 yrs of experience"
-    exp_pattern = r'([2-9]|[1-9][0-9])\+?\s*(?:years?|yrs?)\s*(?:of)?\s*experience'
+    # 5. Experience check - exclude jobs requiring 3+ years of experience
+    # Look for patterns like "3 years", "5+ years", "10 yrs of experience"
+    exp_pattern = r"(?:require|minimum|at least|with)\s+(?:[3-9]|\d{2,})\s*\+?\s*(?:-\s*\d+\s*)?(?:years?|yrs?)"
     if re.search(exp_pattern, desc_lower):
         return False
 
@@ -81,10 +81,10 @@ Location: {job['location']}
 Category/Tags: {job.get('category', 'General')}
 Description Summary: {job['description'][:2000]}  # Truncated description
 
-Determine if this job is STRICTLY suitable for a FRESHER with 0-1 years of experience that Manish can reasonably apply for and succeed in.
+Determine if this job is suitable for an ambitious FRESHER (Manish) who can take on junior roles asking for 0-2 years of experience.
 Roles should be Remote and open to candidates in India.
 
-CRITICAL RULE: If the job description explicitly asks for 2 or more years of experience, you MUST return "match": false. Do not recommend jobs that require multiple years of experience.
+CRITICAL RULE: If the job description explicitly asks for 3 or more years of experience, you MUST return "match": false. It is completely okay to recommend jobs that ask for 1 or 2 years of experience.
 
 Return a JSON object with this exact structure:
 {{
