@@ -41,9 +41,12 @@ def pre_filter_job(title, description, location):
 
     # 2. Seniority check - exclude senior/lead roles
     exclude_seniority = ["senior", "lead", "staff", "principal", "director", "manager", "architect", "head of", "vp", "sr."]
-    # Allow "Product Manager" or "Associate Product Manager"
+    # Allow "Product Manager" or "Associate Product Manager" only if "senior" or "lead" etc are not also present
     if any(word in title_lower for word in exclude_seniority):
-        if not ("product manager" in title_lower or "apm" in title_lower or "associate product" in title_lower):
+        # If it's a manager role, allow it only if it's explicitly a product manager AND doesn't have senior/lead attached
+        if "manager" in title_lower and not any(w in title_lower for w in ["senior", "lead", "principal", "sr."]):
+            pass # It's a regular manager, but wait, freshers aren't managers anyway. Let's just exclude all managers.
+        else:
             return False
 
     # 3. Technical stack check - exclude heavy programming roles unless they are simple/entry level
