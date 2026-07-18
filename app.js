@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const chanceFilter = document.getElementById('chance-filter');
         const categoryFilter = document.getElementById('category-filter');
         const statusFilter = document.getElementById('status-filter');
+        const locationTypeFilter = document.getElementById('location-type-filter');
         const resetBtn = document.getElementById('reset-btn');
         
         // View Toggles
@@ -147,6 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const chance = chanceFilter.value;
         const category = categoryFilter.value;
         const statusVal = statusFilter.value;
+        const locType = locationTypeFilter ? locationTypeFilter.value : 'all';
 
         return jobs.filter((job) => {
             const status = getJobStatus(job);
@@ -171,8 +173,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const matchesStatus = statusVal === 'all' || 
                 (statusVal === 'Not Applied' && status === 'Not Applied') ||
                 (statusVal === status);
+                
+            // Location Type Filter
+            const matchesLocType = locType === 'all' || job.type === locType;
 
-            return matchesQuery && matchesType && matchesChance && matchesCategory && matchesStatus;
+            return matchesQuery && matchesType && matchesChance && matchesCategory && matchesStatus && matchesLocType;
         });
     }
 
@@ -208,6 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="job-company">${job.company}</div>
                         <div class="job-date">Added: ${job.date_discovered || 'Legacy'}</div>
                     </div>
+                    <div class="job-location" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">📍 ${job.location || 'India'} (${job.type || 'Remote'})</div>
                 </div>
 
                 <div class="card-body">
@@ -251,6 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chanceFilter.addEventListener('change', renderJobs);
     categoryFilter.addEventListener('change', renderJobs);
     statusFilter.addEventListener('change', renderJobs);
+    if(locationTypeFilter) locationTypeFilter.addEventListener('change', renderJobs);
 
     // Reset Button Event Listener
     resetBtn.addEventListener('click', () => {
@@ -259,6 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chanceFilter.value = 'all';
         categoryFilter.value = 'all';
         statusFilter.value = 'all';
+        if(locationTypeFilter) locationTypeFilter.value = 'all';
         renderJobs();
     });
 

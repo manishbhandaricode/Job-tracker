@@ -25,42 +25,49 @@ except Exception as e:
     MANISH_PROFILE = ""
     TARGET_KEYWORDS = []
 
-def pre_filter_job(title, description, location):
+def pre_filter_job(title, description, location, job_type="Remote"):
     """
     Do a quick keyword check to filter out obviously irrelevant jobs 
-    (e.g., Senior Software Developers, DevOps, US-only roles) before calling Gemini.
+    before calling Gemini. Also enforces Location/Type rules.
     """
     title_lower = title.lower() if title else ""
     desc_lower = description.lower() if description else ""
     loc_lower = location.lower() if location else ""
+    type_lower = job_type.lower() if job_type else "remote"
 
-    # 1. Location check - exclude if it specifies US, UK, Europe ONLY and excludes worldwide/India
-    exclude_locations = ["us only", "usa only", "uk only", "europe only", "germany only", "canada only", "timezone: est", "timezone: pst"]
+    # 1. Location & Type check
+    allowed_cities = ["kolkata", "bengaluru", "bangalore", "pune", "delhi", "ncr", "noida", "gurgaon"]
+    
+    if "remote" not in type_lower and "remote" not in loc_lower:
+        # It's hybrid or on-site. It MUST be in one of the allowed cities or "india" broadly
+        if not any(city in loc_lower for city in allowed_cities) and "india" not in loc_lower:
+            return False
+            
+    # Exclude US/UK specific
+    exclude_locations = ["us only", "usa only", "uk only", "europe only", "germany only", "canada only", "timezone: est", "timezone: pst", "united states", "united kingdom"]
     if any(loc in loc_lower for loc in exclude_locations) and "worldwide" not in loc_lower and "india" not in loc_lower:
         return False
 
-    # 2. Seniority check - exclude senior/lead roles
-    exclude_seniority = ["senior", "lead", "staff", "principal", "director", "manager", "architect", "head of", "vp", "sr."]
-    # Allow "Product Manager" or "Associate Product Manager" only if "senior" or "lead" etc are not also present
+    # 2. Seniority check
+    exclude_seniority = ["senior", "lead", "staff", "principal", "director", "manager", "architect", "head of", "vp", "sr.", "head"]
     if any(word in title_lower for word in exclude_seniority):
-        # If it's a manager role, allow it only if it's explicitly a product manager AND doesn't have senior/lead attached
-        if "manager" in title_lower and not any(w in title_lower for w in ["senior", "lead", "principal", "sr."]):
-            pass # It's a regular manager, but wait, freshers aren't managers anyway. Let's just exclude all managers.
-        else:
-            return False
+        # We strictly exclude managers and senior roles for 0-2 years exp
+        return False
 
-    # 3. Technical stack check - exclude heavy programming roles unless they are simple/entry level
-    exclude_tech = ["devops", "kubernetes", "golang", "c++", "rust", "backend developer", "frontend developer", 
-                    "fullstack developer", "software engineer", "infrastructure", "react native", "solidity", "blockchain developer"]
+    # 3. Technical & Science stack check (Strictly exclude science/engineering/tech)
+    exclude_tech = ["devops", "kubernetes", "golang", "c++", "rust", "backend", "frontend", 
+                    "fullstack", "software engineer", "infrastructure", "react native", "solidity", 
+                    "blockchain", "science", "scientist", "chemistry", "physics", "biology", "data engineer",
+                    "machine learning", "ai engineer", "clinical", "medical", "doctor", "nursing", "pharma"]
     if any(tech in title_lower for tech in exclude_tech):
         return False
 
-    # 4. Include check - must match one of our target keywords in title
-    if not any(word.lower() in title_lower for word in TARGET_KEYWORDS):
+    # 4. Target Keywords (Broad commerce)
+    # Target keywords are things like Business Analyst, Sales, Marketing, HR, Operations
+    if not any(word.lower() in title_lower for word in TARGET_KEYWORDS) and not any(word in title_lower for word in ["business", "sales", "marketing", "analyst"]):
         return False
 
     # 5. Experience check - exclude jobs requiring 3+ years of experience
-    # Look for patterns like "3 years", "5+ years", "10 yrs of experience"
     exp_pattern = r"(?:require|minimum|at least|with)\s+(?:[3-9]|\d{2,})\s*\+?\s*(?:-\s*\d+\s*)?(?:years?|yrs?)"
     if re.search(exp_pattern, desc_lower):
         return False
@@ -81,24 +88,25 @@ Job Details:
 Title: {job['title']}
 Company: {job['company']}
 Location: {job['location']}
-Category/Tags: {job.get('category', 'General')}
-Description Summary: {job['description'][:2000]}  # Truncated description
+Type: {job.get('type', 'Remote')}
+Description Summary: {job['description'][:2500]}
 
-Determine if this job is suitable for an ambitious FRESHER (Manish) who can take on junior roles asking for 0-2 years of experience.
-Roles should be Remote and open to candidates in India.
+Determine if this job is suitable for an ambitious FRESHER (Manish) who can take on junior/entry-level roles asking for 0-2 years of experience.
+The role must be in Commerce/Business fields (Business Analysis, Sales, BD, Marketing, Content, HR, Operations).
+Locations allowed: Kolkata, Bangalore, Pune, Delhi, or Remote in India.
 
-CRITICAL RULE: If the job description explicitly asks for 3 or more years of experience, you MUST return "match": false. It is completely okay to recommend jobs that ask for 1 or 2 years of experience.
+CRITICAL RULE: If the job description explicitly asks for 3 or more years of experience, you MUST return "match": false. It is completely okay to recommend jobs that ask for 1 or 2 years of experience or are fresher/internships.
 
 Return a JSON object with this exact structure:
 {{
   "match": true or false,
-  "title": "Cleaned Job Title (e.g. Associate Product Manager, Business Analyst Intern)",
+  "title": "Cleaned Job Title",
   "company": "Company Name",
-  "employment": "Full-time" or "Part-time",
-  "chance": "Extremely High" or "Very High" or "Standard" (Extremely/Very High for academic doubt solvers, customer support, telesales, hr, operations. Standard for APM/Analyst roles),
-  "category": "Product Management" or "Business Analysis" or "Finance & Operations" or "Marketing & Growth" or "Sales & BD" or "Human Resources",
+  "employment": "Full-time" or "Part-time" or "Internship",
+  "chance": "Extremely High" or "Very High" or "Standard",
+  "category": "Business Analysis" or "Sales & BD" or "Marketing" or "Human Resources" or "Operations",
   "fits": "A 1-2 sentence explanation of why this job fits Manish's resume.",
-  "tip": "A 1-2 sentence application tip focusing on what Manish should highlight from his resume."
+  "tip": "A 1-2 sentence application tip focusing on what Manish should highlight."
 }}
 """
     try:
@@ -112,53 +120,97 @@ Return a JSON object with this exact structure:
         print(f"Gemini API Error for job {job['title']} at {job['company']}: {e}")
         return {"match": False}
 
-def fetch_remotive_jobs():
-    print("Fetching jobs from Remotive API...")
-    url = "https://remotive.com/api/remote-jobs"
+def fetch_internshala_jobs():
+    print("Fetching jobs from Internshala...")
+    jobs = []
+    url = "https://internshala.com/jobs/fresher-jobs/"
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
     try:
-        response = requests.get(url, timeout=15)
+        from bs4 import BeautifulSoup
+        response = requests.get(url, headers=headers, timeout=15)
         if response.status_code == 200:
-            data = response.json()
-            jobs = data.get("jobs", [])
-            print(f"Fetched {len(jobs)} jobs from Remotive.")
-            return [
-                {
-                    "title": j.get("title"),
-                    "company": j.get("company_name"),
-                    "url": j.get("url"),
-                    "location": j.get("candidate_required_location", "Worldwide"),
-                    "description": j.get("description", ""),
-                    "category": j.get("category", "")
-                }
-                for j in jobs
-            ]
+            soup = BeautifulSoup(response.text, 'html.parser')
+            job_cards = soup.find_all('div', class_='individual_internship')
+            for card in job_cards:
+                title_elem = card.find('h3', class_='job-title')
+                company_elem = card.find('p', class_='company-name')
+                location_elem = card.find('a', class_='location_link')
+                link_elem = card.find('a', class_='job-title-href')
+                
+                if title_elem and company_elem and link_elem:
+                    title = title_elem.text.strip()
+                    company = company_elem.text.strip()
+                    location = location_elem.text.strip() if location_elem else "India"
+                    job_url = "https://internshala.com" + link_elem['href']
+                    
+                    job_type = "Remote" if "remote" in location.lower() or "work from home" in location.lower() else "On-site"
+                    
+                    jobs.append({
+                        "title": title,
+                        "company": company,
+                        "url": job_url,
+                        "location": location,
+                        "description": "Internshala Fresher Job.", # Description evaluated by Gemini from title/company context if needed, but Internshala doesn't expose desc on search page easily.
+                        "category": "Fresher Job",
+                        "type": job_type
+                    })
+            print(f"Fetched {len(jobs)} jobs from Internshala.")
+    except ImportError:
+        print("BeautifulSoup not installed. Skipping Internshala.")
     except Exception as e:
-        print(f"Error fetching from Remotive: {e}")
-    return []
+        print(f"Error fetching from Internshala: {e}")
+    return jobs
 
-def fetch_jobicy_jobs():
-    print("Fetching jobs from Jobicy API...")
-    url = "https://jobicy.com/api/v2/remote-jobs"
+def fetch_jobspy_jobs():
+    print("Fetching jobs via JobSpy (Indeed, LinkedIn, Glassdoor)...")
+    jobs = []
     try:
-        response = requests.get(url, timeout=15)
-        if response.status_code == 200:
-            data = response.json()
-            jobs = data.get("jobs", [])
-            print(f"Fetched {len(jobs)} jobs from Jobicy.")
-            return [
-                {
-                    "title": j.get("jobTitle"),
-                    "company": j.get("companyName"),
-                    "url": j.get("url"),
-                    "location": j.get("jobGeo", "Worldwide"),
-                    "description": j.get("jobDescription", ""),
-                    "category": j.get("jobIndustry", "")
-                }
-                for j in jobs
-            ]
+        from jobspy import scrape_jobs
+        import pandas as pd
+        
+        # We target specific locations and search terms
+        search_terms = ["Business Analyst", "Sales", "Business Development", "Marketing"]
+        locations = ["Kolkata", "Bengaluru", "Pune", "Delhi"]
+        
+        for term in search_terms:
+            for loc in locations:
+                df = scrape_jobs(
+                    site_name=["indeed", "linkedin", "glassdoor"],
+                    search_term=term,
+                    location=loc,
+                    results_wanted=10,
+                    country_indeed='india'
+                )
+                if not df.empty:
+                    for _, row in df.iterrows():
+                        title = str(row.get('title', ''))
+                        company = str(row.get('company', ''))
+                        job_url = str(row.get('job_url', ''))
+                        location_val = str(row.get('location', loc))
+                        description = str(row.get('description', ''))
+                        is_remote = row.get('is_remote', False)
+                        job_type = "Remote" if is_remote else "On-site"
+                        
+                        jobs.append({
+                            "title": title,
+                            "company": company,
+                            "url": job_url,
+                            "location": location_val,
+                            "description": description[:2000] if description != 'nan' else "Description unavailable.",
+                            "category": "Aggregated Job",
+                            "type": job_type
+                        })
+                
+                # Small sleep to prevent immediate rate limit blocking
+                time.sleep(2)
+                
+        print(f"Fetched {len(jobs)} jobs from JobSpy across categories.")
+    except ImportError:
+        print("python-jobspy not installed. Skipping.")
     except Exception as e:
-        print(f"Error fetching from Jobicy: {e}")
-    return []
+        print(f"Error fetching from JobSpy: {e}")
+        
+    return jobs
 
 def send_telegram_alert(new_jobs):
     print("Preparing to send Telegram alert...")
@@ -170,11 +222,12 @@ def send_telegram_alert(new_jobs):
         return
 
     if not new_jobs:
-        message = "✅ *Job Tracker Update*\n\nI just scanned the market but didn't find any *new* entry-level/fresher jobs that match your profile right now.\n\nDon't worry, I'll check again in 12 hours!\n\n🌐 [View your Dashboard](https://jobtracker-ten-zeta.vercel.app/)"
+        message = "✅ *Job Tracker Update*\n\nI just scanned Internshala & Job Boards but didn't find any *new* entry-level Commerce/BA jobs matching your profile.\n\nI'll check again in 12 hours!\n\n🌐 [View your Dashboard](https://jobtracker-ten-zeta.vercel.app/)"
     else:
-        message = f"🚨 *{len(new_jobs)} New Remote Jobs Found!*\n\n"
-        for i, job in enumerate(new_jobs[:5]): # limit to 5 to avoid message size limits
+        message = f"🚨 *{len(new_jobs)} New Jobs Found! (Remote & On-Site)*\n\n"
+        for i, job in enumerate(new_jobs[:5]): 
             message += f"*{i+1}. {job['title']}* at {job['company']}\n"
+            message += f"Type: {job.get('type', 'Remote')} | Loc: {job.get('location', 'India')}\n"
             message += f"Link: {job['url']}\n"
             message += f"Fits: _{job['fits']}_\n\n"
             
@@ -208,36 +261,26 @@ def cleanup_dead_jobs(jobs_list):
     
     closure_phrases = [
         "no longer available", "job is closed", "position has been filled", 
-        "page not found", "404 not found", "this job has expired",
-        "we're sorry, but this job is no longer available"
+        "page not found", "404 not found", "this job has expired"
     ]
     
-    # Check all jobs instead of just 50. GitHub Actions has enough time.
     for idx, job in enumerate(jobs_list):
         url = job.get("url")
         if not url:
             continue
             
         try:
-            # Set a timeout of 10 seconds to allow for redirects
             response = requests.get(url, headers=headers, timeout=10, allow_redirects=True)
-            
             is_dead = False
             
-            # 1. Check HTTP Status
             if response.status_code in [404, 410, 403, 400]:
                 is_dead = True
                 reason = f"Status {response.status_code}"
-                
-            # 2. Check for generic redirects (e.g. redirected to main careers page)
             elif response.url != url:
-                # If the original url had an ID but the new one doesn't, it's likely a generic redirect
-                # This is a basic heuristic. If the new URL is too short compared to old one.
                 if len(response.url.split('/')) < len(url.split('/')) - 1:
                     is_dead = True
                     reason = "Redirected to generic page"
                     
-            # 3. Check Page Content for closure phrases
             if not is_dead:
                 html_lower = response.text.lower()
                 for phrase in closure_phrases:
@@ -247,66 +290,56 @@ def cleanup_dead_jobs(jobs_list):
                         break
             
             if is_dead:
-                print(f"  [Auto-Cleanup] Removing dead job: {job.get('title')} at {job.get('company')} ({reason})")
+                print(f"  [Auto-Cleanup] Removing dead job: {job.get('title')} ({reason})")
                 removed_count += 1
             else:
                 cleaned.append(job)
                 
         except Exception as e:
-            # If there's a connection error or timeout, we remove the job to be safe
-            print(f"  [Auto-Cleanup] Removing dead job: {job.get('title')} at {job.get('company')} (Connection Error)")
+            print(f"  [Auto-Cleanup] Removing dead job: {job.get('title')} (Connection Error)")
             removed_count += 1
             
     print(f"Cleanup finished. Removed {removed_count} dead jobs.")
     return cleaned, removed_count
 
 def main():
-    print("Starting Automated Job Finder...")
+    print("Starting Automated Job Finder (India Fresher Edition)...")
     
-    # Load existing jobs database
     jobs_file_path = os.path.join(os.path.dirname(__file__), "jobs.json")
     if os.path.exists(jobs_file_path):
         try:
             with open(jobs_file_path, "r", encoding="utf-8") as f:
                 existing_jobs = json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
+        except:
             existing_jobs = []
     else:
         existing_jobs = []
         
     print(f"Loaded {len(existing_jobs)} existing jobs from database.")
     
-    # Clean up dead jobs
     existing_jobs, removed_count = cleanup_dead_jobs(existing_jobs)
-    
-    # Get existing URLs to prevent duplicates
     existing_urls = {j.get("url") for j in existing_jobs if j.get("url")}
     
-    # Check for Gemini API key
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         print("WARNING: GEMINI_API_KEY environment variable is not set!")
-        print("Running in DRY-RUN mode. Script will fetch jobs but skip Gemini analysis.")
         model = None
     elif not HAS_GENAI:
         print("WARNING: google-generativeai package not installed!")
-        print("Running in DRY-RUN mode.")
         model = None
     else:
         print("Gemini API key found. Initializing model...")
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel('gemini-1.5-flash')
 
-    # Fetch jobs from APIs
     raw_jobs = []
-    raw_jobs.extend(fetch_remotive_jobs())
-    raw_jobs.extend(fetch_jobicy_jobs())
+    raw_jobs.extend(fetch_internshala_jobs())
+    raw_jobs.extend(fetch_jobspy_jobs())
     
     if not raw_jobs:
         print("No raw jobs fetched. Exiting.")
         sys.exit(0)
 
-    # Filter unique jobs that are not already in our database
     new_jobs = []
     seen_urls = set()
     for job in raw_jobs:
@@ -317,12 +350,10 @@ def main():
             
     print(f"Found {len(new_jobs)} new unique jobs out of {len(raw_jobs)} total fetched jobs.")
 
-    # Apply pre-filtering
-    candidate_jobs = [j for j in new_jobs if pre_filter_job(j["title"], j["description"], j["location"])]
-    print(f"Filtered down to {len(candidate_jobs)} potential entry-level remote jobs.")
+    candidate_jobs = [j for j in new_jobs if pre_filter_job(j["title"], j["description"], j["location"], j.get("type"))]
+    print(f"Filtered down to {len(candidate_jobs)} potential entry-level jobs.")
 
-    # We limit processing to top 15 candidates per run to conserve API rate limits/credits
-    candidate_jobs = candidate_jobs[:15]
+    candidate_jobs = candidate_jobs[:20]
     print(f"Processing the top {len(candidate_jobs)} candidates with Gemini AI...")
 
     matched_jobs_count = 0
@@ -330,22 +361,22 @@ def main():
 
     for idx, job in enumerate(candidate_jobs):
         if not model:
-            # Dry run / Simulated match for testing purposes
-            print(f"Dry run: Suitability check for '{job['title']}' at '{job['company']}'")
-            # Create a mock match if running dry run just to verify flow
-            mock_match = {
-                "match": True,
-                "title": job["title"],
-                "company": job["company"],
-                "employment": "Full-time",
-                "chance": "Standard",
-                "category": "Business Analysis",
-                "fits": "Automatically matched during dry run. Fits remote business analyst criteria.",
-                "tip": "Review the job qualifications and highlight Excel skills."
-            }
-            # Only add one mock job for testing
+            print(f"Dry run: Suitability check for '{job['title']}'")
             if idx == 0:
-                mock_match["url"] = job["url"]
+                mock_match = {
+                    "match": True,
+                    "title": job["title"],
+                    "company": job["company"],
+                    "employment": "Full-time",
+                    "chance": "Standard",
+                    "category": "Business Analysis",
+                    "fits": "Automatically matched during dry run.",
+                    "tip": "Highlight relevant skills.",
+                    "type": job.get("type", "On-site"),
+                    "location": job.get("location", "Kolkata"),
+                    "url": job["url"],
+                    "date_discovered": datetime.now().strftime("%Y-%m-%d")
+                }
                 new_matches.append(mock_match)
                 matched_jobs_count += 1
             continue
@@ -356,38 +387,30 @@ def main():
         if gemini_result.get("match") is True:
             print(f"  -> MATCH FOUND! Category: {gemini_result.get('category')}")
             gemini_result["url"] = job["url"]
-            # Add date discovered
+            gemini_result["type"] = job.get("type", "On-site")
+            gemini_result["location"] = job.get("location", "India")
             gemini_result["date_discovered"] = datetime.now().strftime("%Y-%m-%d")
             new_matches.append(gemini_result)
             matched_jobs_count += 1
         else:
             print("  -> No match.")
             
-        # Respect rate limits
-        time.sleep(4)
+        time.sleep(3)
 
     print(f"Gemini analysis complete. Found {matched_jobs_count} new matches.")
 
     if new_matches or removed_count > 0:
-        # Merge new matches into existing jobs
-        # Add to the beginning of the list to display newest first
         updated_jobs = new_matches + existing_jobs
-        
-        # Limit the database to 150 jobs to keep file size lightweight
         updated_jobs = updated_jobs[:150]
         
-        # Write back to jobs.json
         with open(jobs_file_path, "w", encoding="utf-8") as f:
             json.dump(updated_jobs, f, indent=4, ensure_ascii=False)
             
         print(f"Successfully updated jobs.json! Database now has {len(updated_jobs)} jobs.")
-        
-        # Send Alert (will send either new jobs or a 'none found' summary)
         send_telegram_alert(new_matches)
 
     else:
         print("No new matches found and no dead jobs removed. Database remains unchanged.")
-        # Send a summary alert even if nothing changed in the database
         send_telegram_alert([])
 
 if __name__ == "__main__":
