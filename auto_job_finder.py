@@ -38,14 +38,14 @@ def pre_filter_job(title, description, location, job_type="Remote"):
     # 1. Location & Type check
     allowed_cities = ["kolkata", "bengaluru", "bangalore", "pune", "delhi", "ncr", "noida", "gurgaon"]
     
-    if "remote" not in type_lower and "remote" not in loc_lower:
+    if "remote" not in type_lower and "remote" not in loc_lower and "worldwide" not in loc_lower and "anywhere" not in loc_lower:
         # It's hybrid or on-site. It MUST be in one of the allowed cities or "india" broadly
         if not any(city in loc_lower for city in allowed_cities) and "india" not in loc_lower:
             return False
             
-    # Exclude US/UK specific
+    # Exclude US/UK specific unless it explicitly allows worldwide
     exclude_locations = ["us only", "usa only", "uk only", "europe only", "germany only", "canada only", "timezone: est", "timezone: pst", "united states", "united kingdom"]
-    if any(loc in loc_lower for loc in exclude_locations) and "worldwide" not in loc_lower and "india" not in loc_lower:
+    if any(loc in loc_lower for loc in exclude_locations) and "worldwide" not in loc_lower and "anywhere" not in loc_lower and "india" not in loc_lower:
         return False
 
     # 2. Seniority check
@@ -91,11 +91,14 @@ Location: {job['location']}
 Type: {job.get('type', 'Remote')}
 Description Summary: {job['description'][:2500]}
 
-Determine if this job is suitable for an ambitious FRESHER (Manish) who can take on junior/entry-level roles asking for 0-2 years of experience.
-The role must be in Commerce/Business fields (Business Analysis, Sales, BD, Marketing, Content, HR, Operations).
-Locations allowed: Kolkata, Bangalore, Pune, Delhi, or Remote in India.
+Determine if this job is suitable for an ambitious Commerce fresher (Manish).
+The role must be in Commerce/Business fields (Business Analysis, Business Development, Marketing, Content, Research, HR, Operations).
+Locations allowed: Kolkata, Bangalore, Pune, Delhi, or Remote worldwide.
 
-CRITICAL RULE: If the job description explicitly asks for 3 or more years of experience, you MUST return "match": false. It is completely okay to recommend jobs that ask for 1 or 2 years of experience or are fresher/internships.
+CRITICAL RULES:
+1. FIRST PRIORITY is Fresher suitable jobs / Internships (0 years experience).
+2. SECOND PRIORITY is jobs asking for 1 to 2 years of experience.
+3. If the job description explicitly asks for 3 or more years of experience, you MUST return "match": false.
 
 Return a JSON object with this exact structure:
 {{
@@ -209,8 +212,57 @@ def fetch_jobspy_jobs():
         print("python-jobspy not installed. Skipping.")
     except Exception as e:
         print(f"Error fetching from JobSpy: {e}")
-        
     return jobs
+
+def fetch_remotive_jobs():
+    print("Fetching jobs from Remotive API (Global Remote)...")
+    url = "https://remotive.com/api/remote-jobs"
+    try:
+        response = requests.get(url, timeout=15)
+        if response.status_code == 200:
+            data = response.json()
+            jobs = data.get("jobs", [])
+            print(f"Fetched {len(jobs)} jobs from Remotive.")
+            return [
+                {
+                    "title": j.get("title"),
+                    "company": j.get("company_name"),
+                    "url": j.get("url"),
+                    "location": j.get("candidate_required_location", "Worldwide"),
+                    "description": j.get("description", ""),
+                    "category": j.get("category", ""),
+                    "type": "Remote"
+                }
+                for j in jobs
+            ]
+    except Exception as e:
+        print(f"Error fetching from Remotive: {e}")
+    return []
+
+def fetch_jobicy_jobs():
+    print("Fetching jobs from Jobicy API (Global Remote)...")
+    url = "https://jobicy.com/api/v2/remote-jobs"
+    try:
+        response = requests.get(url, timeout=15)
+        if response.status_code == 200:
+            data = response.json()
+            jobs = data.get("jobs", [])
+            print(f"Fetched {len(jobs)} jobs from Jobicy.")
+            return [
+                {
+                    "title": j.get("jobTitle"),
+                    "company": j.get("companyName"),
+                    "url": j.get("url"),
+                    "location": j.get("jobGeo", "Worldwide"),
+                    "description": j.get("jobDescription", ""),
+                    "category": j.get("jobIndustry", ""),
+                    "type": "Remote"
+                }
+                for j in jobs
+            ]
+    except Exception as e:
+        print(f"Error fetching from Jobicy: {e}")
+    return []
 
 def send_telegram_alert(new_jobs):
     print("Preparing to send Telegram alert...")
@@ -335,6 +387,8 @@ def main():
     raw_jobs = []
     raw_jobs.extend(fetch_internshala_jobs())
     raw_jobs.extend(fetch_jobspy_jobs())
+    raw_jobs.extend(fetch_remotive_jobs())
+    raw_jobs.extend(fetch_jobicy_jobs())
     
     if not raw_jobs:
         print("No raw jobs fetched. Exiting.")
