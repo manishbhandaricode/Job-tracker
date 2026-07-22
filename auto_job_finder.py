@@ -274,7 +274,7 @@ def send_telegram_alert(new_jobs):
         return
 
     if not new_jobs:
-        message = "✅ *Job Tracker Update*\n\nI just scanned Internshala & Job Boards but didn't find any *new* entry-level Commerce/BA jobs matching your profile.\n\nI'll check again in 12 hours!\n\n🌐 [View your Dashboard](https://jobtracker-ten-zeta.vercel.app/)"
+        message = "✅ *Job Tracker Update*\n\nI just scanned Internshala & Job Boards but didn't find any *new* entry-level Commerce/BA jobs matching your profile.\n\nI'll check again in 24 hours!\n\n🌐 [View your Dashboard](https://jobtracker-ten-zeta.vercel.app/)"
     else:
         message = f"🚨 *{len(new_jobs)} New Jobs Found! (Remote & On-Site)*\n\n"
         for i, job in enumerate(new_jobs[:5]): 
