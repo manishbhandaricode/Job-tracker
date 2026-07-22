@@ -172,8 +172,8 @@ def fetch_jobspy_jobs():
         import pandas as pd
         
         # We target specific locations and search terms
-        search_terms = ["Business Analyst", "Sales", "Business Development", "Marketing"]
-        locations = ["Kolkata", "Bengaluru", "Pune", "Delhi"]
+        search_terms = ["Business Analyst", "Sales", "Business Development", "Marketing", "Human Resources"]
+        locations = ["Kolkata", "Bengaluru", "Pune", "Delhi", "India"]
         
         for term in search_terms:
             for loc in locations:
